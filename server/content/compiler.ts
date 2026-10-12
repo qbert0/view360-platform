@@ -181,7 +181,11 @@ export function compileTour(raw: unknown): CompileResult {
       sourcePanorama: s.sourcePanorama,
       // Existing uploaded scenes already have a 2K editor panorama. Reuse it
       // as the progressive viewer preview until the tour is uploaded again.
-      previewPanorama: s.previewPanorama ?? s.editorPanorama,
+      // `editorPanorama` is intentionally small and belongs exclusively to
+      // the admin canvas. Never promote it to the public viewer preview: doing
+      // so makes every admin save persist a blurry first-pass texture and the
+      // viewer then waits for its idle upgrade before becoming sharp.
+      previewPanorama: s.previewPanorama,
       mobilePanorama: s.mobilePanorama,
       ktx2Panorama: s.ktx2Panorama,
       multiRes: s.multiRes,
