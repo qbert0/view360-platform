@@ -102,11 +102,6 @@ export function saveTour(slug: string, config: TourConfig): void {
   if (bundledTours[slug] && !belongsToSite(bundledTours[slug])) throw new Error('Tour belongs to another site');
   if (config.siteId && !belongsToSite(config)) throw new Error('Cannot move tour to another site');
   config = { ...config, siteId: activeSite() };
-  // Update in-memory static tour if present
-  if (bundledTours[slug]) {
-    bundledTours[slug] = JSON.parse(JSON.stringify(config));
-  }
-
   // Admin mutations must reflect a real disk write. Silently swallowing this
   // error makes the UI report success while a reload restores the old YAML.
   const filePath = join(TOURS_DIR, `${slug}.yaml`);
