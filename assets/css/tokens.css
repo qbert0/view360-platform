@@ -1,0 +1,121 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Astryx Design Tokens — mapped to View360 palette
+   These CSS custom properties mirror the Astryx token system from
+   https://astryx.atmeta.com/docs/tokens
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Brand / Primary ─────────────────────────────────────────── */
+  --ui-color-brand:            #1f6f8b;   /* river */
+  --ui-color-brand-hover:      #1a5f78;
+  --ui-color-brand-active:     #154d62;
+  --ui-color-brand-subtle:     rgba(31, 111, 139, 0.12);
+  --ui-color-brand-muted:      rgba(31, 111, 139, 0.08);
+  --ui-color-brand-fg:         #ffffff;
+
+  /* ── Success ──────────────────────────────────────────────────── */
+  --ui-color-success:          #3d5f43;   /* moss */
+  --ui-color-success-hover:    #335138;
+  --ui-color-success-subtle:   rgba(61, 95, 67, 0.12);
+  --ui-color-success-muted:    rgba(61, 95, 67, 0.08);
+  --ui-color-success-fg:       #ffffff;
+
+  /* ── Error / Danger ───────────────────────────────────────────── */
+  --ui-color-error:            #c0392b;
+  --ui-color-error-hover:      #a93226;
+  --ui-color-error-subtle:     rgba(192, 57, 43, 0.12);
+  --ui-color-error-muted:      rgba(192, 57, 43, 0.08);
+  --ui-color-error-fg:         #ffffff;
+
+  /* ── Warning / Accent ────────────────────────────────────────── */
+  --ui-color-warning:          #a8583f;   /* clay */
+  --ui-color-warning-hover:    #8f4b35;
+  --ui-color-warning-subtle:   rgba(168, 88, 63, 0.12);
+  --ui-color-warning-muted:    rgba(168, 88, 63, 0.08);
+  --ui-color-warning-fg:       #ffffff;
+
+  /* ── Neutral / Text ──────────────────────────────────────────── */
+  --ui-color-text-primary:     #141414;   /* ink */
+  --ui-color-text-secondary:   rgba(20, 20, 20, 0.65);
+  --ui-color-text-muted:       rgba(20, 20, 20, 0.45);
+  --ui-color-text-disabled:    rgba(20, 20, 20, 0.28);
+  --ui-color-text-inverse:     #f7f3ec;   /* paper */
+
+  /* ── Surface / Background ────────────────────────────────────── */
+  --ui-color-surface:          #ffffff;
+  --ui-color-surface-raised:   #ffffff;
+  --ui-color-bg:               #f7f3ec;   /* paper */
+  --ui-color-bg-subtle:        #ece8e0;
+  --ui-color-bg-muted:         rgba(20, 20, 20, 0.04);
+
+  /* ── Border ──────────────────────────────────────────────────── */
+  --ui-color-border:           rgba(20, 20, 20, 0.12);
+  --ui-color-border-strong:    rgba(20, 20, 20, 0.22);
+  --ui-color-border-subtle:    rgba(20, 20, 20, 0.07);
+
+  /* ── Elevation / Shadow ──────────────────────────────────────── */
+  --ui-shadow-low:     0 1px 3px rgba(20,20,20,0.08), 0 1px 2px rgba(20,20,20,0.05);
+  --ui-shadow-medium:  0 4px 16px rgba(20,20,20,0.10), 0 2px 6px rgba(20,20,20,0.06);
+  --ui-shadow-high:    0 12px 40px rgba(20,20,20,0.14), 0 4px 12px rgba(20,20,20,0.08);
+
+  /* ── Radius ──────────────────────────────────────────────────── */
+  --ui-radius-none:   0px;
+  --ui-radius-xs:     2px;
+  --ui-radius-sm:     4px;
+  --ui-radius-md:     6px;
+  --ui-radius-lg:     10px;
+  --ui-radius-xl:     16px;
+  --ui-radius-full:   9999px;
+
+  /* ── Spacing ──────────────────────────────────────────────────── */
+  --ui-space-1:  4px;
+  --ui-space-2:  8px;
+  --ui-space-3:  12px;
+  --ui-space-4:  16px;
+  --ui-space-5:  20px;
+  --ui-space-6:  24px;
+
+  /* ── Typography ───────────────────────────────────────────────── */
+  --ui-font-sans:  'Inter', ui-sans-serif, system-ui, sans-serif;
+  --ui-font-mono:  'JetBrains Mono', ui-monospace, monospace;
+
+  /* ── Transition ──────────────────────────────────────────────── */
+  --ui-transition-fast:   100ms ease;
+  --ui-transition-base:   160ms ease;
+  --ui-transition-slow:   240ms ease;
+}
+
+/* ── Dark mode overrides ─────────────────────────────────────────────────── */
+:root.dark {
+  --ui-color-text-primary:     #f7f3ec;
+  --ui-color-text-secondary:   rgba(247, 243, 236, 0.65);
+  --ui-color-text-muted:       rgba(247, 243, 236, 0.45);
+  --ui-color-text-disabled:    rgba(247, 243, 236, 0.28);
+  --ui-color-text-inverse:     #141414;
+
+  --ui-color-surface:          #1c1c1c;
+  --ui-color-surface-raised:   #242424;
+  --ui-color-bg:               #141414;
+  --ui-color-bg-subtle:        #1c1c1c;
+  --ui-color-bg-muted:         rgba(255, 255, 255, 0.05);
+
+  --ui-color-border:           rgba(255, 255, 255, 0.10);
+  --ui-color-border-strong:    rgba(255, 255, 255, 0.18);
+  --ui-color-border-subtle:    rgba(255, 255, 255, 0.06);
+
+  --ui-shadow-low:     0 1px 3px rgba(0,0,0,0.25), 0 1px 2px rgba(0,0,0,0.18);
+  --ui-shadow-medium:  0 4px 16px rgba(0,0,0,0.32), 0 2px 6px rgba(0,0,0,0.20);
+  --ui-shadow-high:    0 12px 40px rgba(0,0,0,0.42), 0 4px 12px rgba(0,0,0,0.28);
+}
+
+/* ── Global shimmer keyframe (used by Skeleton) ──────────────────────────── */
+@keyframes ui-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+/* ── Toast slide-in keyframe ─────────────────────────────────────────────── */
+@keyframes ui-toast-in {
+  from { transform: translateY(12px) scale(0.96); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}

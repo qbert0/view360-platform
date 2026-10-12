@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://view360.local/schemas/v1/tour.schema.json",
+  "title": "TourConfig",
+  "description": "Full configuration for a View360 panorama tour, loaded from YAML.",
+  "type": "object",
+  "required": ["slug", "title", "location", "summary", "scenes"],
+  "additionalProperties": false,
+  "properties": {
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "URL-safe identifier, e.g. 'trang-bay'"
+    },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "location": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 1000 },
+    "duration": {
+      "type": "string",
+      "description": "Human-readable duration, e.g. '~10 phút'"
+    },
+    "theme": {
+      "type": "string",
+      "enum": ["nature", "minimal", "tourism", "urban"],
+      "default": "nature"
+    },
+    "initialSceneId": {
+      "type": "string",
+      "description": "ID of the first scene to display. Defaults to scenes[0]."
+    },
+    "plugins": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of enabled plugin names."
+    },
+    "mode": { "type": "string", "enum": ["free", "guided"] },
+    "guidedDuration": { "type": "number", "minimum": 0 },
+    "autoRotate": { "type": "boolean" },
+    "showMinimap": { "type": "boolean" },
+    "transition": {
+      "type": "string",
+      "enum": ["crossfade", "forward", "fly-through", "crossfade-pan"]
+    },
+    "transitionDuration": { "type": "number", "minimum": 0 },
+    "transitionColor": { "type": "string" },
+    "thumbnailFallbackAfterMs": { "type": "number", "minimum": 0 },
+    "preloadEnabled": { "type": "boolean" },
+    "preloadRadius": { "type": "number", "minimum": 0 },
+    "minOverlayMs": { "type": "number", "minimum": 0 },
+    "scenes": {
+      "type": "array",
+      "minItems": 0,
+      "items": { "$ref": "#/definitions/TourScene" }
+    }
+  },
+  "definitions": {
+    "TourScene": {
+      "type": "object",
+      "required": ["id", "title", "panorama", "thumbnail"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+        },
+        "title": { "type": "string", "minLength": 1 },
+        "subtitle": { "type": "string", "default": "" },
+        "panorama": { "type": "string", "minLength": 1 },
+        "thumbnail": { "type": "string", "minLength": 1 },
+        "initialYaw": { "type": "number", "default": 0 },
+        "initialPitch": { "type": "number", "default": 0 },
+        "defaultCameraEnabled": { "type": "boolean", "default": false, "description": "Apply the scene camera yaw/pitch when entering this scene." },
+        "initialFov": { "type": "number", "minimum": 30, "maximum": 150, "default": 75 },
+        "defaultZoomEnabled": { "type": "boolean", "default": false },
+        "mobileView": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "initialYaw": { "type": "number" },
+            "initialPitch": { "type": "number" },
+            "initialFov": { "type": "number", "minimum": 30, "maximum": 150 },
+            "defaultCameraEnabled": { "type": "boolean" },
+            "defaultZoomEnabled": { "type": "boolean" }
+          }
+        },
+        "panoramaRotation": { "type": "number", "default": 0, "description": "World-space rotation of the panorama and its markers, in radians." },
+        "brightness": { "type": "number", "minimum": 0.5, "maximum": 2, "default": 1.25 },
+        "highlightCompression": { "type": "number", "minimum": 0, "maximum": 1, "default": 0 },
+        "coordinates": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "number" }
+        },
+        "markers": {
+          "type": "array",
+          "default": [],
+          "items": { "$ref": "#/definitions/TourMarker" }
+        }
+      }
+    },
+    "TourMarker": {
+      "type": "object",
+      "required": ["id", "plugin", "label", "yaw", "pitch"],
+      "properties": {
+        "id": { "type": "string" },
+        "plugin": { "type": "string", "enum": ["navigation", "panel", "info", "video", "model3d", "audio", "ai-chat"] },
+        "label": { "type": "string" },
+        "yaw": { "type": "number" },
+        "pitch": { "type": "number" },
+        "scaleX": { "type": "number", "minimum": 0.1, "maximum": 10, "description": "2D/3D marker horizontal scale" },
+        "scaleY": { "type": "number", "minimum": 0.1, "maximum": 10, "description": "2D/3D marker vertical scale" },
+        "scaleZ": { "type": "number", "minimum": 0.1, "maximum": 10, "description": "3D object marker depth scale" },
+        "targetScene": {
+          "type": "string",
+          "description": "navigation markers only — target scene ID"
+        },
+        "content": {
+          "type": "string",
+          "description": "info markers only — popup content text"
+        },
+        "src": {
+          "type": "string",
+          "description": "audio/video markers only — media URL"
+        },
+        "image": {
+          "type": "string",
+          "description": "model3d markers only — manually supplied object render/360 image"
+        },
+        "context": {
+          "type": "string",
+          "description": "ai-chat markers only — extra context for AI"
+        },
+        "placement": {
+          "type": "string",
+          "enum": ["vertical", "horizontal"],
+          "description": "panel marker placement relative to its world anchor"
+        },
+        "contents": {
+          "type": "array",
+          "description": "panel markers — ordered, composable content blocks",
+          "items": {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": { "type": "string" },
+              "type": { "type": "string", "enum": ["text", "audio", "image3d", "ai-chat"] },
+              "content": { "type": "string" },
+              "presentation": { "type": "string", "enum": ["text-only", "text-and-audio", "audio-only"] },
+              "speech": {
+                "type": "object",
+                "properties": {
+                  "src": { "type": "string" },
+                  "lang": { "type": "string" },
+                  "rate": { "type": "number", "minimum": 0.5, "maximum": 2 },
+                  "pitch": { "type": "number", "minimum": 0.5, "maximum": 2 }
+                }
+              },
+              "src": { "type": "string" },
+              "image": { "type": "string" },
+              "caption": { "type": "string" },
+              "context": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
