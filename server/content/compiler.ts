@@ -26,7 +26,7 @@ function getValidator() {
     required: ['slug', 'title', 'location', 'summary', 'scenes'],
     properties: {
       slug:           { type: 'string' },
-      siteId:         { type: 'string', enum: ['song-van', 'duc-thuy'] },
+      siteId:         { type: 'string', minLength: 1 },
       title:          { type: 'string', minLength: 1 },
       location:       { type: 'string', minLength: 1 },
       summary:        { type: 'string', minLength: 1 },
@@ -92,6 +92,7 @@ function getValidator() {
               },
             },
             panoramaRotation: { type: 'number', default: 0 },
+            panoramaRoll: { type: 'number', minimum: -0.7854, maximum: 0.7854, default: 0 },
             brightness:   { type: 'number', minimum: 0.5, maximum: 2, default: 1.25 },
             highlightCompression: { type: 'number', minimum: 0, maximum: 1, default: 0 },
             coordinates:  {
@@ -200,6 +201,7 @@ export function compileTour(raw: unknown): CompileResult {
       defaultZoomEnabled: s.defaultZoomEnabled ?? s.defaultCameraEnabled ?? false,
       mobileView: s.mobileView,
       panoramaRotation: s.panoramaRotation ?? 0,
+      panoramaRoll: s.panoramaRoll ?? 0,
       brightness:   s.brightness ?? 1.25,
       highlightCompression: s.highlightCompression ?? 0,
       coordinates:  s.coordinates,
