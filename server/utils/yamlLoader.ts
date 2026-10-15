@@ -14,8 +14,8 @@ function staticTours(): Record<string, TourConfig> {
 
 const TOURS_DIR = resolve(process.cwd(), 'tours');
 
-function activeSite(): 'song-van' | 'duc-thuy' {
-  return useRuntimeConfig().public.siteId === 'duc-thuy' ? 'duc-thuy' : 'song-van';
+function activeSite(): string {
+  return useRuntimeConfig().public.siteId || 'song-van';
 }
 
 function belongsToSite(tour: Pick<TourConfig, 'siteId'>): boolean {

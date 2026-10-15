@@ -201,7 +201,13 @@ export class View360Engine {
     this.pano.setMultiResolution(null);
 
     const initialPanorama = scene.previewPanorama ?? scene.panorama;
-    const panoramaApplied = await this.pano.setImmediate(initialPanorama, scene.panoramaRotation ?? 0);
+    // Apply both panorama axes before publishing the decoded texture. This
+    // prevents a visible upright frame followed by a late roll correction.
+    const panoramaApplied = await this.pano.setImmediate(
+      initialPanorama,
+      scene.panoramaRotation ?? 0,
+      scene.panoramaRoll ?? 0,
+    );
     if (!panoramaApplied) return;
 
     if (playIntro) {
@@ -219,6 +225,7 @@ export class View360Engine {
       this.pano.setMultiResolution(
         this.enableTiling ? (scene.multiRes ?? null) : null,
         scene.panoramaRotation ?? 0,
+        scene.panoramaRoll ?? 0,
       );
 
       if (this.introDelay > 0) {
@@ -272,6 +279,7 @@ export class View360Engine {
       this.pano.setMultiResolution(
         this.enableTiling ? (scene.multiRes ?? null) : null,
         scene.panoramaRotation ?? 0,
+        scene.panoramaRoll ?? 0,
       );
     }
 
@@ -289,6 +297,18 @@ export class View360Engine {
     if (this.currentScene) this.currentScene.panoramaRotation = normalized;
     this.pano.setRotation(normalized);
     this.bus.emit('scene:rotation', { rotation: normalized });
+  }
+
+  /**
+   * Apply roll correction to panorama-local space. Rotating the image sphere
+   * keeps camera controls level and lets the correction exist before a newly
+   * loaded texture becomes visible.
+   */
+  setSceneRoll(roll: number): void {
+    const normalized = Number.isFinite(roll) ? roll : 0;
+    if (this.currentScene) this.currentScene.panoramaRoll = normalized;
+    this.pano.setRoll(normalized);
+    this.bus.emit('scene:roll', { roll: normalized });
   }
 
   /**
@@ -365,7 +385,7 @@ export class View360Engine {
       const warpFov = baseFov + Math.sin(p * Math.PI) * 20;
       this.camera.camera.fov = warpFov;
       this.camera.camera.updateProjectionMatrix();
-    }, scene.panoramaRotation ?? 0);
+    }, scene.panoramaRotation ?? 0, scene.panoramaRoll ?? 0);
 
     // Reset camera position after transition. Crossfade keeps the viewer's
     // current direction so there is no camera jump when the new image appears.
@@ -375,7 +395,11 @@ export class View360Engine {
     this.camera.setOrientation(destYaw, destPitch, destFov);
 
     this.currentScene = scene;
-    this.pano.setMultiResolution(this.enableTiling ? (scene.multiRes ?? null) : null, scene.panoramaRotation ?? 0);
+    this.pano.setMultiResolution(
+      this.enableTiling ? (scene.multiRes ?? null) : null,
+      scene.panoramaRotation ?? 0,
+      scene.panoramaRoll ?? 0,
+    );
     this.isTransitioning = false;
 
     this.bus.emit('scene:transition:end', { scene });

@@ -1,7 +1,6 @@
 name: Publish View360 Platform
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - 'v*'
@@ -22,6 +21,15 @@ jobs:
           node-version: 22
           registry-url: https://npm.pkg.github.com
           scope: '@qbert0'
+
+      - name: Verify tag matches package version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Tag v$TAG_VERSION does not match package version $PACKAGE_VERSION"
+            exit 1
+          fi
 
       - run: npm pack --dry-run
 

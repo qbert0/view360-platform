@@ -413,6 +413,11 @@ export function useDesignerEngine() {
     engine.value.setSceneRotation(value);
   }
 
+  function setRoll(value: number): void {
+    if (!engine.value) return;
+    engine.value.setSceneRoll(value);
+  }
+
   function setInteractionMode(mode: 'camera' | 'panorama'): void {
     interactionMode.value = mode;
     const canvas = engine.value?.['renderer'].domElement as HTMLCanvasElement | undefined;
@@ -489,6 +494,7 @@ export function useDesignerEngine() {
     setBrightness,
     setHighlightCompression,
     setPanoramaRotation,
+    setRoll,
     setInteractionMode,
     destroyEngine,
   };

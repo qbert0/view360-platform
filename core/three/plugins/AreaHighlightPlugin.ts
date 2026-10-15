@@ -41,6 +41,7 @@ export class AreaHighlightPlugin extends PluginBase {
   private readonly visuals: AreaVisual[] = [];
   private readonly preview: boolean;
   private unsubscribeRotation?: () => void;
+  private unsubscribeRoll?: () => void;
   private readonly pointer = new THREE.Vector2();
   private readonly raycaster = new THREE.Raycaster();
   private currentAreas: AreaHighlight[] = [];
@@ -63,6 +64,10 @@ export class AreaHighlightPlugin extends PluginBase {
       this.root.rotation.y = rotation;
       this.root.updateMatrixWorld(true);
     });
+    this.unsubscribeRoll = this.ctx.bus.on('scene:roll', ({ roll }) => {
+      this.root.rotation.z = -roll;
+      this.root.updateMatrixWorld(true);
+    });
     if (this.preview) this.bindVertexDragging();
   }
 
@@ -72,6 +77,8 @@ export class AreaHighlightPlugin extends PluginBase {
 
   override onSceneReady(scene: TourScene): void {
     this.setAreas(scene.areaHighlights ?? [], scene.panoramaRotation ?? 0);
+    this.root.rotation.z = -(scene.panoramaRoll ?? 0);
+    this.root.updateMatrixWorld(true);
   }
 
   /** Replace current areas; used by the designer while vertices are drawn. */
@@ -142,6 +149,7 @@ export class AreaHighlightPlugin extends PluginBase {
 
   protected override onDestroy(): void {
     this.unsubscribeRotation?.();
+    this.unsubscribeRoll?.();
     this.pointerCleanups.forEach(cleanup => cleanup());
     this.pointerCleanups = [];
     this.clear();

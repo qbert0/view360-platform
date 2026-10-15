@@ -22,6 +22,8 @@ export interface EngineEventMap {
   'scene:loaded': { scene: TourScene };
   /** Panorama-local world transform changed; all spatial plugins follow it. */
   'scene:rotation': { rotation: number };
+  /** Panorama roll correction changed; spatial plugins follow the image. */
+  'scene:roll': { roll: number };
   /** Scene transition started */
   'scene:transition:start': { from: TourScene | null; to: TourScene };
   /** Scene transition completed */

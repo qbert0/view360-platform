@@ -277,6 +277,11 @@ export interface TourScene {
   };
   /** Rotation of the panorama and its scene markers in world space, radians. */
   panoramaRotation?: number;
+  /**
+   * Roll correction for the panorama in radians (rotation around the Z / forward axis).
+   * Use this to straighten tilted 360° photos. Positive = clockwise.
+   */
+  panoramaRoll?: number;
   /** Panorama brightness multiplier. 1 = original, recommended range 0.6–1.6. */
   brightness?: number;
   /** Soft highlight roll-off. 0 = original, 1 = strongest compression. */
@@ -291,7 +296,8 @@ export interface TourScene {
 
 /** Full tour configuration — loaded from YAML */
 export interface TourConfig {
-  siteId?: 'song-van' | 'duc-thuy';
+  /** Brand application that owns this tour. */
+  siteId?: string;
   slug: string;
   title: string;
   location: string;

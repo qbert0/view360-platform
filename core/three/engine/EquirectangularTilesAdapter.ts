@@ -117,7 +117,7 @@ export class EquirectangularTilesAdapter implements PanoramaAdapter {
   private readonly onContextRestored = () => {
     const config = this.config;
     if (!config) return;
-    this.configure(config, this.group.rotation.y);
+    this.configure(config, this.group.rotation.y, -this.group.rotation.z);
   };
 
   get diagnostics(): PanoramaAdapterDiagnostics {
@@ -151,7 +151,7 @@ export class EquirectangularTilesAdapter implements PanoramaAdapter {
     renderer.domElement.addEventListener('webglcontextrestored', this.onContextRestored);
   }
 
-  configure(config: MultiResolutionPanorama | null, rotation: number): void {
+  configure(config: MultiResolutionPanorama | null, rotation: number, roll = 0): void {
     this.generation++;
     this.cancelAllJobs();
     this.clearRecords();
@@ -167,12 +167,21 @@ export class EquirectangularTilesAdapter implements PanoramaAdapter {
     this.currentLevel = 0;
     this.lastSelectionAt = -Infinity;
     this.group.rotation.y = rotation;
+    // Keep the stored value compatible with the former camera-roll correction:
+    // rotating the world uses the opposite sign to rotating the camera.
+    this.group.rotation.z = -roll;
     this.group.visible = Boolean(this.config);
     this.group.updateMatrixWorld(true);
   }
 
   setRotation(rotation: number): void {
     this.group.rotation.y = rotation;
+    this.group.updateMatrixWorld(true);
+    this.lastSelectionAt = -Infinity;
+  }
+
+  setRoll(roll: number): void {
+    this.group.rotation.z = -roll;
     this.group.updateMatrixWorld(true);
     this.lastSelectionAt = -Infinity;
   }

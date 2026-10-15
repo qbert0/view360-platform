@@ -108,6 +108,9 @@ export class MarkerPlugin extends PluginBase {
     this.unsubs.push(this.ctx.bus.on('scene:rotation', ({ rotation }) => {
       this.applySceneRotation(rotation);
     }));
+    this.unsubs.push(this.ctx.bus.on('scene:roll', ({ roll }) => {
+      this.applySceneRoll(roll);
+    }));
     this.bindPointerEvents();
   }
 
@@ -152,6 +155,7 @@ export class MarkerPlugin extends PluginBase {
     // Markers are authored in panorama-local yaw/pitch. Rotate their common
     // parent with the image so they remain attached to the same visual spots.
     this.applySceneRotation(scene.panoramaRotation ?? 0);
+    this.applySceneRoll(scene.panoramaRoll ?? 0);
     for (const marker of scene.markers ?? []) {
       const markerType = this.markerTypes.get(marker.plugin);
       if (!markerType?.supports(marker)) {
@@ -279,6 +283,11 @@ export class MarkerPlugin extends PluginBase {
     // PanelMarker projects anchors into DOM coordinates before WebGL render in
     // the engine loop, so ensure its world matrix reflects the new rotation in
     // this same frame rather than one frame later.
+    this.group.updateMatrixWorld(true);
+  }
+
+  private applySceneRoll(roll: number): void {
+    this.group.rotation.z = -roll;
     this.group.updateMatrixWorld(true);
   }
 

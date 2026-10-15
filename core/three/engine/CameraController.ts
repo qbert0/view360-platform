@@ -23,6 +23,7 @@ export class CameraController {
   // Current state (interpolated)
   private yaw = 0;
   private pitch = 0;
+  private roll = 0;
   private fov: number;
 
   // Target state (set by input)
@@ -94,37 +95,74 @@ export class CameraController {
 
   /** Set camera orientation instantly (no lerp) */
   setOrientation(yaw: number, pitch: number, fov?: number): void {
-    this.yaw = yaw;
-    this.pitch = pitch;
-    this.targetYaw = yaw;
-    this.targetPitch = pitch;
+    const safeYaw = Number.isFinite(yaw) ? yaw : 0;
+    const safePitch = THREE.MathUtils.clamp(
+      Number.isFinite(pitch) ? pitch : 0,
+      -this.pitchLimit,
+      this.pitchLimit,
+    );
+    this.yaw = safeYaw;
+    this.pitch = safePitch;
+    this.targetYaw = safeYaw;
+    this.targetPitch = safePitch;
     if (fov !== undefined) {
-      this.fov = fov;
-      this.targetFov = fov;
-      this.camera.fov = fov;
+      const safeFov = THREE.MathUtils.clamp(
+        Number.isFinite(fov) ? fov : this.fov,
+        this.minFov,
+        this.maxFov,
+      );
+      this.fov = safeFov;
+      this.targetFov = safeFov;
+      this.camera.fov = safeFov;
       this.camera.updateProjectionMatrix();
     }
     this.applyRotation();
   }
 
+  /**
+   * Set camera roll (Z-axis rotation) to correct tilted panoramas.
+   * Positive roll = clockwise from viewer's perspective.
+   * This value persists across frames — it is not interpolated.
+   */
+  setRoll(roll: number): void {
+    this.roll = Number.isFinite(roll) ? roll : 0;
+    this.applyRotation();
+  }
+
+  getRoll(): number { return this.roll; }
+
   /** Set camera target orientation (lerp to it) */
   setTarget(yaw: number, pitch: number, fov?: number): void {
-    this.targetYaw = yaw;
-    this.targetPitch = Math.max(-this.pitchLimit, Math.min(this.pitchLimit, pitch));
-    if (fov !== undefined) {
-      this.targetFov = Math.max(this.minFov, Math.min(this.maxFov, fov));
+    if (Number.isFinite(yaw)) this.targetYaw = yaw;
+    if (Number.isFinite(pitch)) {
+      this.targetPitch = THREE.MathUtils.clamp(pitch, -this.pitchLimit, this.pitchLimit);
+    }
+    if (fov !== undefined && Number.isFinite(fov)) {
+      this.targetFov = THREE.MathUtils.clamp(fov, this.minFov, this.maxFov);
     }
   }
 
   /** Override current + target yaw/pitch/fov directly (for animations) */
   setRaw(yaw: number, pitch: number, fov?: number): void {
-    this.yaw = yaw;
-    this.pitch = pitch;
-    this.targetYaw = yaw;
-    this.targetPitch = pitch;
+    const safeYaw = Number.isFinite(yaw) ? yaw : this.yaw;
+    const safePitch = THREE.MathUtils.clamp(
+      Number.isFinite(pitch) ? pitch : this.pitch,
+      -this.pitchLimit,
+      this.pitchLimit,
+    );
+    this.yaw = safeYaw;
+    this.pitch = safePitch;
+    this.targetYaw = safeYaw;
+    this.targetPitch = safePitch;
     if (fov !== undefined) {
-      this.fov = fov;
-      this.camera.fov = fov;
+      const safeFov = THREE.MathUtils.clamp(
+        Number.isFinite(fov) ? fov : this.fov,
+        this.minFov,
+        this.maxFov,
+      );
+      this.fov = safeFov;
+      this.targetFov = safeFov;
+      this.camera.fov = safeFov;
       this.camera.updateProjectionMatrix();
     }
     this.applyRotation();
@@ -163,6 +201,7 @@ export class CameraController {
   }
 
   onResize(width: number, height: number): void {
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) return;
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
   }
@@ -175,7 +214,7 @@ export class CameraController {
   // ── Private ────────────────────────────────────────────────────
 
   private applyRotation(): void {
-    const euler = new THREE.Euler(this.pitch, this.yaw, 0, 'YXZ');
+    const euler = new THREE.Euler(this.pitch, this.yaw, this.roll, 'YXZ');
     this.camera.quaternion.setFromEuler(euler);
   }
 

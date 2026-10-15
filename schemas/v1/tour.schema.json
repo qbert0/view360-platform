@@ -7,6 +7,11 @@
   "required": ["slug", "title", "location", "summary", "scenes"],
   "additionalProperties": false,
   "properties": {
+    "siteId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the brand application that owns this tour."
+    },
     "slug": {
       "type": "string",
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
@@ -84,6 +89,7 @@
           }
         },
         "panoramaRotation": { "type": "number", "default": 0, "description": "World-space rotation of the panorama and its markers, in radians." },
+        "panoramaRoll": { "type": "number", "minimum": -0.7854, "maximum": 0.7854, "default": 0, "description": "Roll correction (Z-axis) in radians, to straighten tilted 360° photos." },
         "brightness": { "type": "number", "minimum": 0.5, "maximum": 2, "default": 1.25 },
         "highlightCompression": { "type": "number", "minimum": 0, "maximum": 1, "default": 0 },
         "coordinates": {

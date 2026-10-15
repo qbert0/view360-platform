@@ -47,8 +47,9 @@ export interface PanoramaAdapterDiagnostics {
  */
 export interface PanoramaAdapter {
   readonly diagnostics: PanoramaAdapterDiagnostics;
-  configure(config: MultiResolutionPanorama | null, rotation: number): void;
+  configure(config: MultiResolutionPanorama | null, rotation: number, roll?: number): void;
   setRotation(rotation: number): void;
+  setRoll(roll: number): void;
   setBrightness(value: number): void;
   setHighlightCompression(value: number): void;
   update(camera: THREE.PerspectiveCamera, now?: number): void;

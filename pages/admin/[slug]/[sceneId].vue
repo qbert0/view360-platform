@@ -8,7 +8,12 @@ definePageMeta({ layout: false, ssr: false });
 
 const route = useRoute();
 const router = useRouter();
-const studioName = useRuntimeConfig().public.siteId === 'duc-thuy' ? 'Dục Thúy Studio' : 'Sông Vân Studio';
+const siteId = useRuntimeConfig().public.siteId;
+const studioName = siteId === 'duc-thuy'
+  ? 'Dục Thúy Studio'
+  : siteId === 'song-van'
+    ? 'Sông Vân Studio'
+    : 'View360 Studio';
 const slug = route.params.slug as string;
 const initialSceneIdParam = route.params.sceneId as string;
 
@@ -505,6 +510,15 @@ function setCurrentPanoramaRotation(degrees: number) {
   markDirty();
 }
 
+function setCurrentPanoramaRoll(degrees: number) {
+  if (!currentScene.value || !Number.isFinite(degrees)) return;
+  // Clamp to ±45° — beyond that the photo is beyond reasonable correction
+  const clamped = Math.max(-45, Math.min(45, degrees));
+  currentScene.value.panoramaRoll = clamped * DEG_TO_RAD;
+  setRoll(currentScene.value.panoramaRoll);
+  markDirty();
+}
+
 watch(mapActiveFloorId, () => nextTick(() => drawMapEditor()));
 
 const selectedHotspotId = ref<string | null>(null);
@@ -863,6 +877,7 @@ const {
   setBrightness,
   setHighlightCompression,
   setPanoramaRotation,
+  setRoll,
   setInteractionMode,
 } = useDesignerEngine();
 
@@ -1271,6 +1286,7 @@ async function handleNewSceneImage(event: Event) {
           defaultCameraEnabled: false,
           defaultZoomEnabled: false,
           panoramaRotation: 0,
+          panoramaRoll: 0,
           showOnMap: false,
           brightness: 1.25,
           markers: [],
@@ -2148,6 +2164,38 @@ onMounted(() => {
               <button type="button" @click="setSceneHighlightCompression(0.6)">Mạnh</button>
             </div>
             <div class="hint-text">Chỉ nén vùng trời và nguồn sáng gắt; không thay đổi file ảnh gốc.</div>
+          </div>
+
+          <div class="insp-section" v-if="currentScene">
+            <div class="insp-section-title">Chỉnh nghiêng panorama (Roll)</div>
+            <div class="brightness-control">
+              <input
+                type="range"
+                min="-45"
+                max="45"
+                step="0.5"
+                :value="(currentScene.panoramaRoll ?? 0) * RAD_TO_DEG"
+                @input="setCurrentPanoramaRoll(Number(($event.target as HTMLInputElement).value))"
+              >
+              <output>{{ ((currentScene.panoramaRoll ?? 0) * RAD_TO_DEG).toFixed(1) }}°</output>
+            </div>
+            <div class="field mt-2">
+              <label>Góc nghiêng chính xác</label>
+              <input
+                type="number"
+                min="-45"
+                max="45"
+                step="0.1"
+                :value="((currentScene.panoramaRoll ?? 0) * RAD_TO_DEG).toFixed(1)"
+                @change="setCurrentPanoramaRoll(Number(($event.target as HTMLInputElement).value))"
+              >
+            </div>
+            <div class="brightness-presets">
+              <button type="button" @click="setCurrentPanoramaRoll(-5)">-5°</button>
+              <button type="button" @click="setCurrentPanoramaRoll(0)">Đặt lại</button>
+              <button type="button" @click="setCurrentPanoramaRoll(5)">+5°</button>
+            </div>
+            <div class="hint-text">Dùng để chỉnh ảnh 360° bị nghiêng. Xoay theo trục nhìn (Z) để nắn thẳng đường chân trời.</div>
           </div>
 
           <div class="insp-section">
@@ -3063,6 +3111,7 @@ onMounted(() => {
             </div>
             <div class="hint-text">Giá trị này xoay chính panorama và toàn bộ marker của cảnh. Nó không thay đổi camera.</div>
           </div>
+
           <div class="insp-section">
             <div class="insp-section-title">Các cảnh trên bản đồ</div>
             <button v-for="(scene, index) in tour.scenes" :key="scene.id" type="button" class="geo-scene-row" :class="{ active: scene.id === currentScene?.id }" @click="goToScene(index)">

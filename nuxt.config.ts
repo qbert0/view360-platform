@@ -50,6 +50,10 @@ export default defineNuxtConfig({
   },
 
   css: [
+    '@photo-sphere-viewer/core/index.css',
+    '@photo-sphere-viewer/markers-plugin/index.css',
+    '@photo-sphere-viewer/plan-plugin/index.css',
+    '@theme-toggles/vue/styles.css',
     fromLayer('./assets/css/main.css'),
     'leaflet/dist/leaflet.css',
   ],

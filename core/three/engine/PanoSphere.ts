@@ -242,8 +242,18 @@ export class PanoSphere {
     this.panoramaAdapter.setRotation(rotation);
   }
 
-  setMultiResolution(config: MultiResolutionPanorama | null, rotation = 0): void {
-    this.panoramaAdapter.configure(config, rotation);
+  /**
+   * Apply a roll correction (Z-axis) to the panorama sphere.
+   * This tilts the visible horizon to straighten photos taken at an angle.
+   * Positive roll = clockwise rotation from the viewer's perspective.
+   */
+  setRoll(roll: number): void {
+    this.sphereA.rotation.z = -roll;
+    this.panoramaAdapter.setRoll(roll);
+  }
+
+  setMultiResolution(config: MultiResolutionPanorama | null, rotation = 0, roll = 0): void {
+    this.panoramaAdapter.configure(config, rotation, roll);
   }
 
   updateTiles(camera: THREE.PerspectiveCamera, now?: number): void {
@@ -281,7 +291,7 @@ export class PanoSphere {
   /**
    * Set the panorama instantly (no transition).
    */
-  async setImmediate(url: string, rotation = 0): Promise<boolean> {
+  async setImmediate(url: string, rotation = 0, roll = 0): Promise<boolean> {
     const generation = ++this.immediateLoadGeneration;
     const tex = await this.preload(url);
     // Rapid scene clicks can complete out of order. A stale request must not
@@ -295,6 +305,7 @@ export class PanoSphere {
     this.sphereA.material.uniforms.opacity.value = 1;
     this.sphereA.position.set(0, 0, 0);
     this.sphereA.rotation.y = rotation;
+    this.sphereA.rotation.z = -roll;
     this.sphereB.visible = false;
     // Immediate loads (notably the admin designer) do not need the previous
     // transition texture. Releasing this reference allows the LRU to dispose
@@ -349,6 +360,7 @@ export class PanoSphere {
     direction?: THREE.Vector3,
     onProgress?: (p: number) => void,
     rotation = 0,
+    roll = 0,
   ): Promise<void> {
     if (this.isTransitioning) return;
     this.isTransitioning = true;
@@ -357,6 +369,7 @@ export class PanoSphere {
     // The incoming panorama is oriented in world space before it becomes
     // visible, so crossfade never exposes an incorrectly aligned frame.
     this.sphereB.rotation.y = rotation;
+    this.sphereB.rotation.z = -roll;
 
     switch (style) {
       case 'forward':
@@ -722,7 +735,9 @@ export class PanoSphere {
     this.sphereA.material.uniforms.opacity.value = 1;
     this.sphereA.position.set(0, 0, 0);
     this.sphereA.rotation.y = this.sphereB.rotation.y;
+    this.sphereA.rotation.z = this.sphereB.rotation.z;
     this.panoramaAdapter.setRotation(this.sphereB.rotation.y);
+    this.panoramaAdapter.setRoll(-this.sphereB.rotation.z);
 
     this.sphereB.visible = false;
     this.sphereB.material.uniforms.map.value = PanoSphere.blankTex;
